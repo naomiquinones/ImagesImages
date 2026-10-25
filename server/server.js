@@ -41,6 +41,22 @@ app.get("/query/:search", async (req, res) => {
   }
 });
 
+app.get("/recent", async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT term, searched_at AS "searchedAt"
+      FROM searches
+      ORDER BY searched_at DESC
+      LIMIT 10
+    `);
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Failed to retrieve recent searches:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 app.use(express.static(path.join(import.meta.dirname, "../client/dist")));
 
 app.listen(PORT, () => {
