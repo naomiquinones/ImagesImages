@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import path from "node:path";
 import { searchImages } from "./openverse.js";
+import pool from "./db.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,7 +23,14 @@ app.get("/query/:search", async (req, res) => {
   }
 
   try {
-    const term = req.params.search;
+    const term = req.params.search.trim().toLowerCase();
+
+    if (page === 1) {
+      await pool.query(
+        "INSERT INTO searches (term) VALUES ($1)",
+        [term]
+      );
+    }
 
     const images = await searchImages(term, page);
 
