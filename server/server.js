@@ -13,10 +13,18 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/query/:search", async (req, res) => {
+  const page = req.query.page === undefined ? 1 : Number(req.query.page);
+
+  if (!Number.isInteger(page) || page < 1 || page > 12) {
+    return res.status(400).json({
+      error: "page must be a whole number from 1 to 12",
+    });
+  }
+
   try {
     const term = req.params.search;
 
-    const images = await searchImages(term, 1);
+    const images = await searchImages(term, page);
 
     res.json(images);
   } catch (error) {
